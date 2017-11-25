@@ -3,23 +3,34 @@ package com.breiler.contribe.repository;
 import com.breiler.contribe.model.Book;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
+
+import java.util.ArrayList;
 
 import static org.hibernate.validator.internal.util.Contracts.assertNotNull;
 import static org.junit.Assert.assertEquals;
+import static org.mockito.Mockito.when;
 
 public class BookListImplTest {
+
+    @Mock
+    private InventoryProvider inventoryProvider;
 
     private BookListImpl target;
 
     @Before
     public void init() {
-        this.target = new BookListImpl();
+        MockitoAnnotations.initMocks(this);
+        when(inventoryProvider.fetchInventory()).thenReturn(new ArrayList<>());
+
+        this.target = new BookListImpl(inventoryProvider);
     }
 
     @Test
     public void addingOneBookManyTimesShouldOnlyIncreaseInventory() {
         // When
-        Book book = Book.builder().build();
+        Book book = Book.builder().title("1").build();
         target.add(book, 1);
         target.add(book, 3);
         target.add(book, 0);
@@ -33,16 +44,16 @@ public class BookListImplTest {
     @Test(expected = IllegalArgumentException.class)
     public void addingBooksWithNegativeQuantityShouldThrowError() {
         // When
-        target.add(Book.builder().build(), -1);
+        target.add(Book.builder().title("1").build(), -1);
     }
 
     @Test
     public void listBooksShouldReturnAllBooksThatExistsInInventory() {
 
         // Given
-        target.add(Book.builder().build(), 2);
-        target.add(Book.builder().build(), 1);
-        target.add(Book.builder().build(), 0);
+        target.add(Book.builder().title("1").build(), 2);
+        target.add(Book.builder().title("2").build(), 1);
+        target.add(Book.builder().title("3").build(), 0);
 
 
         // When
@@ -57,7 +68,7 @@ public class BookListImplTest {
     public void listBooksWithNoSearchStringReturnAllBooksThatExistsInInventory() {
 
         // Given
-        target.add(Book.builder().build(), 2);
+        target.add(Book.builder().title("1").build(), 2);
 
 
         // When
@@ -140,7 +151,7 @@ public class BookListImplTest {
     public void buyingBookShouldRemoveItFromInventory() {
 
         // Given
-        Book book = Book.builder().build();
+        Book book = Book.builder().title("1").build();
         target.add(book, 1);
 
         // When
@@ -163,7 +174,7 @@ public class BookListImplTest {
     public void buyingBookNotInInventoryShouldReturnNotFound() {
 
         // Given
-        Book book = Book.builder().build();
+        Book book = Book.builder().title("1").build();
 
         // When
         int[] statuses = target.buy(book);

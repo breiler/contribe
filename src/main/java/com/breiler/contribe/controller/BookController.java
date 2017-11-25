@@ -2,7 +2,6 @@ package com.breiler.contribe.controller;
 
 import com.breiler.contribe.contract.BookDTO;
 import com.breiler.contribe.model.Book;
-import com.breiler.contribe.repository.BookList;
 import com.breiler.contribe.service.BookService;
 import io.swagger.annotations.*;
 import lombok.extern.log4j.Log4j;
@@ -33,19 +32,20 @@ public class BookController {
 
     @RequestMapping(value = "/api/books", method = RequestMethod.GET)
     @ApiOperation(value = "Fetches books",
-            notes = "Fetches the books in the book store", responseContainer = "List")
+            notes = "Fetches all books in the book store filtered by a query string which will search for the title or author", responseContainer = "List")
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "The status was retreived successfully"),
+            @ApiResponse(code = 200, message = "The books was retreived successfully"),
             @ApiResponse(code = 500, message = "Something went wrong when processing the request")
     })
     public ResponseEntity<List<BookDTO>> fetchBooks(
-            @ApiParam(name = "query", value="A query string for searching books")
+            @ApiParam(name = "query", value = "A query string for searching books")
             @RequestParam(value = "query", required = false)
-            String query
+                    String query
     ) {
         List<Book> books = bookService.findBooks(query);
 
-        Type listType = new TypeToken<List<BookDTO>>() {}.getType();
+        Type listType = new TypeToken<List<BookDTO>>() {
+        }.getType();
         List<BookDTO> results = modelMapper.map(books, listType);
 
         return ResponseEntity.status(HttpStatus.OK).body(results);

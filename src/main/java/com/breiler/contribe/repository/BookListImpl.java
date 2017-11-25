@@ -3,6 +3,7 @@ package com.breiler.contribe.repository;
 import com.breiler.contribe.model.Book;
 import com.breiler.contribe.model.Inventory;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
@@ -16,7 +17,10 @@ public class BookListImpl implements BookList {
 
     private List<Inventory> inventoryList = new ArrayList<>();
 
-    public BookListImpl() {
+    @Autowired
+    public BookListImpl(InventoryProvider inventoryProvider) {
+        List<Inventory> inventoryList = inventoryProvider.fetchInventory();
+        inventoryList.forEach(inventory -> add(inventory.getBook(), Long.valueOf(inventory.getQuantity()).intValue()));
     }
 
     @Override
