@@ -1,7 +1,6 @@
 package com.breiler.contribe.model;
 
 import lombok.Data;
-
 import java.util.List;
 
 @Data

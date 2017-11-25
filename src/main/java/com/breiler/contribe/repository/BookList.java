@@ -11,4 +11,6 @@ public interface BookList {
     boolean add(Book book, int quantity);
 
     int[] buy(Book... books);
+
+    StatusEnum getStatus(String bookId);
 }

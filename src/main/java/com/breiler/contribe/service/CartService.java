@@ -3,6 +3,9 @@ package com.breiler.contribe.service;
 
 import com.breiler.contribe.model.Cart;
 import com.breiler.contribe.model.CartItem;
+import com.breiler.contribe.repository.BookList;
+import com.breiler.contribe.repository.StatusEnum;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.HttpServerErrorException;
@@ -17,9 +20,18 @@ import java.util.UUID;
  */
 @Service
 public class CartService {
+    private final BookList bookList;
     private List<Cart> carts = new ArrayList<>();
 
+    @Autowired
+    private CartService(BookList bookList) {
+        this.bookList = bookList;
+    }
+
     public Cart createCart(Cart cart) {
+        List<CartItem> items = removeItemsNotInInventory(cart.getItems());
+        cart.setItems(items);
+
         cart.setId(UUID.randomUUID().toString());
         carts.add(cart);
         return cart;
@@ -30,15 +42,21 @@ public class CartService {
                 .filter(c -> c.getId().equals(cartId)).findFirst();
     }
 
-    public void updateCart(Cart cart) throws HttpServerErrorException {
+    public Cart updateCart(final Cart cart) throws HttpServerErrorException {
         Optional<Cart> existingCart = getCart(cart.getId());
         if (!existingCart.isPresent()) {
-            throw new HttpServerErrorException(HttpStatus.NOT_FOUND);
+            throw new RuntimeException("Couldn't find the cart to update");
         }
 
-        // Update the items in the cart
-        List<CartItem> cartItems = existingCart.get().getItems();
-        cartItems.clear();
-        cartItems.addAll(cart.getItems());
+        // Remove items that doesn't exist in the inventory
+        List<CartItem> items = removeItemsNotInInventory(cart.getItems());
+        existingCart.get().setItems(items);
+        return existingCart.get();
+    }
+
+    private List<CartItem> removeItemsNotInInventory(List<CartItem> cartItems) {
+        List<CartItem> items = new ArrayList<>(cartItems);
+        items.removeIf(cartItem -> bookList.getStatus(cartItem.getBookId()) != StatusEnum.OK);
+        return items;
     }
 }

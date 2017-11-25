@@ -38,7 +38,7 @@ public class BookListImpl implements BookList {
 
     @Override
     public boolean add(Book book, int quantity) {
-        if(quantity < 0) {
+        if (quantity < 0) {
             throw new IllegalArgumentException("The quantity should not be negative");
         }
 
@@ -75,13 +75,27 @@ public class BookListImpl implements BookList {
                 .toArray();
     }
 
-    private StatusEnum buy(Book book) {
-        Optional<Inventory> optionalInventory = getInventoryForBookById(book.getId());
-        if(!optionalInventory.isPresent()) {
+    @Override
+    public StatusEnum getStatus(String bookId) {
+        Optional<Inventory> optionalInventory = getInventoryForBookById(bookId);
+        if (!optionalInventory.isPresent()) {
             return StatusEnum.DOES_NOT_EXIST;
         }
 
-        if(optionalInventory.get().getQuantity() == 0 ) {
+        if (optionalInventory.get().getQuantity() == 0) {
+            return StatusEnum.NOT_IN_STOCK;
+        }
+
+        return StatusEnum.OK;
+    }
+
+    private StatusEnum buy(Book book) {
+        Optional<Inventory> optionalInventory = getInventoryForBookById(book.getId());
+        if (!optionalInventory.isPresent()) {
+            return StatusEnum.DOES_NOT_EXIST;
+        }
+
+        if (optionalInventory.get().getQuantity() == 0) {
             return StatusEnum.NOT_IN_STOCK;
         }
 
