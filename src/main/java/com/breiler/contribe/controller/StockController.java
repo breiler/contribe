@@ -58,7 +58,7 @@ public class StockController {
             @ApiParam(name = "bookId", value = "The unique bookId of the book to update the stock")
             @PathVariable(name = "bookId")
                     Long bookId,
-            @ApiParam(name = "stock", value = "The stock to be created")
+            @ApiParam(value = "The stock to be created")
             @RequestBody
                     CreateStockDTO stockDTO
     ) {

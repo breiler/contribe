@@ -61,7 +61,7 @@ public class BookController {
             @ApiResponse(code = 500, message = "Something went wrong when processing the request")
     })
     public ResponseEntity<BookDTO> create(
-            @ApiParam(value = "The item to be updated in the cart")
+            @ApiParam(value = "The book to create")
             @RequestBody
                     CreateBookDTO bookDTO
     ) {

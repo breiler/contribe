@@ -69,7 +69,7 @@ public class CartController {
             @ApiParam(name = "cartId", value = "The unique bookId of the cart", example = "1")
             @PathVariable(name = "cartId")
                     Long id,
-            @ApiParam(name = "item", value = "The item to be updated in the cart")
+            @ApiParam(value = "The item to be updated in the cart")
             @RequestBody
                     CreateItemDTO itemDTO) {
         Cart cart = cartService.addBookToCart(id, itemDTO.getBookId(), itemDTO.getQuantity());
