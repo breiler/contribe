@@ -24,7 +24,7 @@ Implementationen av applikationen har gjorts i [Spring Boot](https://projects.sp
 
 Kör applikationen genom följande:
  * Kompilera applikationen: ```mvn clean package```
- * Kör JAR-filen:  ```java -jar target/contribe-1.0-SNAPSHOT-exec.jar``
+ * Kör JAR-filen:  ```java -jar target/contribe-1.0-SNAPSHOT-exec.jar```
 
 ## Funktioner
 
@@ -32,6 +32,7 @@ Alla funktioner är åtkomliga via Swagger:  http://localhost:8080/swagger-ui.ht
 
 ### Söka på böcker
 Söka på böcker görs genom REST-resursen: ```GET /api/books?query={söksträng}```
+
 Sökningen görs genom ett enkelt SQL-filter som söker i på poster där fälten för författare eller bokens titel innehåller söksträngen. Sökfiltret bryr sig inte om gemener eller versaler.
 
 [Se API-dokumentation i Swagger](http://localhost:8080/swagger-ui.html#!/Books/findBooksUsingGET) 
@@ -39,6 +40,7 @@ Sökningen görs genom ett enkelt SQL-filter som söker i på poster där fälte
 
 ### Skapa kundvagn
 En användare kan skapa en kundvagn genom REST-resursen: ```POST /api/carts```
+
 Kundvagnen skapas upp och returneras tillsammans med ett unikt id. Id:t till kundvagnen kan sedan användas för att lägga till böcker och för att göra själva beställningen.
 
 [Se API-dokumentation i Swagger](http://localhost:8080/swagger-ui.html#!/Carts/createUsingPOST_1) 
@@ -46,6 +48,7 @@ Kundvagnen skapas upp och returneras tillsammans med ett unikt id. Id:t till kun
 
 ### Lägga till böcker till kundvagn
 En användare kan lägga till böcker till sin kundvagn genom REST-resursen: ```POST /api/carts/{cartId}```
+
 Boken och hur många man vill ha specificeras genom följande JSON:
 ```json
 {
@@ -59,6 +62,7 @@ Boken och hur många man vill ha specificeras genom följande JSON:
 
 ### Se innehållet i sin kundvagn
 En användare kan hämta hela sin kundvagn genom REST-resursen: ```GET /api/carts/{cartId}```
+
 Denna returnerar information om boken och antal. Den räknar även ihop antalet artiklar och summan för hela kundvagnen.
 
 [Se API-dokumentation i Swagger](http://localhost:8080/swagger-ui.html#!/Carts/fetchAllUsingGET) 
@@ -66,6 +70,7 @@ Denna returnerar information om boken och antal. Den räknar även ihop antalet 
 
 ### Lägga en order
 En användare kan lägga en order av sin kundvagn genom REST-resursen ```POST /api/carts/{cartId}/order```
+
 Denna kontrollerar först att det finns tillräckligt med böcker på lagret för att kunna genomföra ordern (annars slängs ett fel). 
 Därefter räknas antalet ner på alla artiklar på lagret.
 
@@ -74,6 +79,7 @@ Därefter räknas antalet ner på alla artiklar på lagret.
 
 ### Lägga till böcker till sortimentet
 En användare kan lägga till böcker till sortimentet genom REST-resursen ```POST /api/books```
+
 Information om boken ska innehålla författare, titel och ett pris:
 ```json
 {
@@ -88,12 +94,15 @@ Information om boken ska innehålla författare, titel och ett pris:
 
 ### Ändra böckers lagerstatus
 En användare kan ändra lagerstatus för en bok genom REST-resursen ```PUT /api/stock/{bookId}```
+
 Funktionen sätter lagerstatusen till det antal man skickar in enligt följande exemepel:
 ```json
 {
   "quantity": 1
 }
 ```
+
+[Se API-dokumentation i Swagger](http://localhost:8080/swagger-ui.html#!/Stock/createUsingPUT) 
 
 
 
