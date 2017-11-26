@@ -20,6 +20,8 @@ Implementationen av applikationen har gjorts i [Spring Boot](https://projects.sp
 
 [Swagger](https://swagger.io/) istället för en exempelklient. Denna är bra för såväl konsumenter, utvecklare och testare som genom denna får tillgång till API:ets dokumentation och kan enkelt funktionerna direkt i webbläsaren. Jag ser i och med denna inte behovet av en fristående testklient.
 
+[Modelmapper](http://modelmapper.org/) för att smidigt mappa kontrakts-entiteter till interna modellentiteter.
+
 ## Köra
 
 Kör applikationen genom följande:
