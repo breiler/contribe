@@ -1,62 +1,84 @@
 package com.breiler.contribe.service;
 
 
+import com.breiler.contribe.model.Book;
 import com.breiler.contribe.model.Cart;
-import com.breiler.contribe.model.CartItem;
-import com.breiler.contribe.repository.BookList;
-import com.breiler.contribe.repository.StatusEnum;
+import com.breiler.contribe.model.Item;
+import com.breiler.contribe.repository.BookRepository;
+import com.breiler.contribe.repository.CartRepository;
+import com.google.common.collect.Lists;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.HttpServerErrorException;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
 
 /**
  * An internal service for handling carts
  */
 @Service
 public class CartService {
-    private final BookList bookList;
-    private List<Cart> carts = new ArrayList<>();
+    private final BookRepository bookRepository;
+    private final CartRepository cartRepository;
 
     @Autowired
-    private CartService(BookList bookList) {
-        this.bookList = bookList;
+    public CartService(BookRepository bookRepository, CartRepository cartRepository) {
+        this.bookRepository = bookRepository;
+        this.cartRepository = cartRepository;
     }
 
-    public Cart createCart(Cart cart) {
-        List<CartItem> items = removeItemsNotInInventory(cart.getItems());
-        cart.setItems(items);
-
-        cart.setId(UUID.randomUUID().toString());
-        carts.add(cart);
+    public Cart create() {
+        Cart cart = new Cart();
+        cart.setItems(new ArrayList<>());
+        cartRepository.save(cart);
         return cart;
     }
 
-    public Optional<Cart> getCart(String cartId) {
-        return carts.stream()
-                .filter(c -> c.getId().equals(cartId)).findFirst();
+    public Optional<Cart> fetch(final Long cartId) {
+        return Optional.ofNullable(cartRepository.findOne(cartId));
     }
 
-    public Cart updateCart(final Cart cart) throws HttpServerErrorException {
-        Optional<Cart> existingCart = getCart(cart.getId());
-        if (!existingCart.isPresent()) {
-            throw new RuntimeException("Couldn't find the cart to update");
+    public Optional<Cart> addBookToCart(final Long cartId, final Long bookId, Long quantity) {
+        Cart cart = cartRepository.findOne(cartId);
+        Book book = bookRepository.findOne(bookId);
+        if (cart == null || book == null) {
+            return Optional.empty();
         }
 
-        // Remove items that doesn't exist in the inventory
-        List<CartItem> items = removeItemsNotInInventory(cart.getItems());
-        existingCart.get().setItems(items);
-        return existingCart.get();
+        if (quantity == 0) {
+            cart.getItems().removeIf(i -> i.getBook().getId().equals(bookId));
+        } else {
+            // Find an existing item in cart
+            Optional<Item> itemToBeUpdated = cart
+                    .getItems()
+                    .stream()
+                    .filter(i -> i.getBook().getId().equals(bookId))
+                    .findFirst();
+
+            // Add one if it didn't exist
+            if (!itemToBeUpdated.isPresent()) {
+                Item newItem = Item.builder()
+                        .book(book)
+                        .build();
+
+                cart.getItems().add(newItem);
+                itemToBeUpdated = Optional.of(newItem);
+            }
+
+            // Set the quantity
+            itemToBeUpdated.get().setQuantity(quantity);
+        }
+
+        cartRepository.save(cart);
+        return Optional.of(cart);
     }
 
-    private List<CartItem> removeItemsNotInInventory(List<CartItem> cartItems) {
-        List<CartItem> items = new ArrayList<>(cartItems);
-        items.removeIf(cartItem -> bookList.getStatus(cartItem.getBookId()) != StatusEnum.OK);
-        return items;
+    public void delete(Long id) {
+        cartRepository.delete(id);
+    }
+
+    public List<Cart> fetchAll() {
+        return Lists.newArrayList(cartRepository.findAll());
     }
 }
