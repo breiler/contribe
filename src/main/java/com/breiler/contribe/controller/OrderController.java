@@ -76,7 +76,8 @@ public class OrderController {
                 .collect(Collectors.toList());
 
         Order order = orderService.createFromItems(items);
-        return ResponseEntity.ok().body(modelMapper.map(order, OrderDTO.class));
+        OrderDTO result = modelMapper.map(order, OrderDTO.class);
+        return ResponseEntity.ok().body(result);
     }
 
 
@@ -89,8 +90,8 @@ public class OrderController {
     })
     public ResponseEntity<OrderDTO> fetchAll() {
         List<Order> order = orderService.fetchAll();
-        Type listType = new TypeToken<List<OrderDTO>>() {
-        }.getType();
-        return ResponseEntity.ok().body(modelMapper.map(order, listType));
+        Type listType = new TypeToken<List<OrderDTO>>() {}.getType();
+        OrderDTO result = modelMapper.map(order, listType);
+        return ResponseEntity.ok().body(result);
     }
 }

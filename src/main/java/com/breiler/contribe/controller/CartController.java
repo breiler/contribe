@@ -38,7 +38,8 @@ public class CartController {
     })
     public ResponseEntity<CartDTO> create() {
         Cart createdCart = cartService.create();
-        return ResponseEntity.ok().body(modelMapper.map(createdCart, CartDTO.class));
+        CartDTO result = modelMapper.map(createdCart, CartDTO.class);
+        return ResponseEntity.ok().body(result);
     }
 
     @RequestMapping(value = "/api/carts", method = RequestMethod.GET)
@@ -72,7 +73,8 @@ public class CartController {
             @RequestBody
                     CreateItemDTO itemDTO) {
         Cart cart = cartService.addBookToCart(id, itemDTO.getBookId(), itemDTO.getQuantity());
-        return ResponseEntity.ok().body(modelMapper.map(cart, CartDTO.class));
+        CartDTO result = modelMapper.map(cart, CartDTO.class);
+        return ResponseEntity.ok().body(result);
     }
 
 
@@ -88,7 +90,8 @@ public class CartController {
             @PathVariable(name = "cartId")
                     Long id) {
         Cart cart = cartService.fetch(id);
-        return ResponseEntity.ok().body(modelMapper.map(cart, CartDTO.class));
+        CartDTO result = modelMapper.map(cart, CartDTO.class);
+        return ResponseEntity.ok().body(result);
     }
 
     @RequestMapping(value = "/api/carts/{cartId}", method = RequestMethod.DELETE)
