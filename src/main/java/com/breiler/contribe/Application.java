@@ -9,6 +9,10 @@ import java.io.IOException;
 @SpringBootApplication
 public class Application {
 
+    public Application(InitialDataLoader initialDataLoader) {
+        initialDataLoader.loadInitialDataIfEmpty();
+    }
+
     public static void main(String[] args) throws IOException {
         SpringApplication.run(Application.class, args);
     }

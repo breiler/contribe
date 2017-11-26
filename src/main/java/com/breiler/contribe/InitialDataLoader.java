@@ -11,6 +11,7 @@ import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.net.URL;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.text.ParseException;
@@ -18,14 +19,14 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Component
-public class BookLoader {
+public class InitialDataLoader {
 
     private DecimalFormat decimalFormat;
     private BookService bookService;
     private StockService stockService;
 
     @Autowired
-    BookLoader(BookService bookService, StockService stockService) {
+    InitialDataLoader(BookService bookService, StockService stockService) {
         this.bookService = bookService;
         this.stockService = stockService;
         createDecimalFormat();
@@ -40,9 +41,9 @@ public class BookLoader {
         decimalFormat.setParseBigDecimal(true);
     }
 
-    public void loadInitialData() {
-        List<Book> books = bookService.findBooks(null);
-        if( books.isEmpty() ) {
+    public void loadInitialDataIfEmpty() {
+        List<Book> books = bookService.findByQuery(null);
+        if (books.isEmpty()) {
             List<Stock> stockList = getStockFromFile();
             stockList.forEach(stock -> {
                 Book book = bookService.create(stock.getBook());
@@ -53,7 +54,7 @@ public class BookLoader {
 
     private List<Stock> getStockFromFile() {
         try {
-            List<String> list = IOUtils.readLines(BookLoader.class.getResourceAsStream("/bookstoredata.txt"));
+            List<String> list = IOUtils.readLines(new URL("https://raw.githubusercontent.com/contribe/contribe/dev/bookstoredata/bookstoredata.txt").openStream());
             return list.stream()
                     .map(this::convertLineToInventory)
                     .collect(Collectors.toList());
