@@ -35,7 +35,7 @@ public class OrderService {
         this.stockRepository = stockRepository;
     }
 
-    public Optional<Order> createFromCart(Long cartId) {
+    public Order createFromCart(Long cartId) {
         Cart cart = this.cartRepository.findOne(cartId);
         if (cart == null) {
             throw new HttpServerErrorException(HttpStatus.PRECONDITION_FAILED, "Couldn't find cart with id " + cartId);
@@ -66,7 +66,7 @@ public class OrderService {
                 .items(items)
                 .build();
 
-        return Optional.of(orderRepository.save(order));
+        return orderRepository.save(order);
     }
 
     private List<Item> getItemsWithNotEnoughStock(List<Item> items) {
@@ -82,7 +82,7 @@ public class OrderService {
         return Lists.newArrayList(orderRepository.findAll());
     }
 
-    public Optional<Order> createFromItems(List<Item> items) {
+    public Order createFromItems(List<Item> items) {
 
         // Make sure there are enough elements in stock
         List<Item> itemsWithNotEnoughStock = getItemsWithNotEnoughStock(items);
@@ -98,6 +98,6 @@ public class OrderService {
         });
 
         Order order = Order.builder().items(items).build();
-        return Optional.of(orderRepository.save(order));
+        return orderRepository.save(order);
     }
 }

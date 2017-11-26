@@ -1,7 +1,6 @@
 package com.breiler.contribe;
 
 import com.breiler.contribe.model.*;
-import com.breiler.contribe.repository.BookRepository;
 import com.breiler.contribe.repository.CartRepository;
 import com.breiler.contribe.repository.OrderRepository;
 import com.breiler.contribe.repository.StockRepository;
@@ -16,8 +15,6 @@ import org.springframework.web.client.HttpServerErrorException;
 import java.util.Collections;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyLong;
 import static org.mockito.Mockito.when;
 

@@ -47,8 +47,7 @@ public class BookController {
     ) {
         List<Book> books = bookService.findByQuery(query);
 
-        Type listType = new TypeToken<List<BookDTO>>() {
-        }.getType();
+        Type listType = new TypeToken<List<BookDTO>>() {}.getType();
         List<BookDTO> results = modelMapper.map(books, listType);
 
         return ResponseEntity.status(HttpStatus.OK).body(results);

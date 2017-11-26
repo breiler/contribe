@@ -41,8 +41,7 @@ public class StockController {
     public ResponseEntity<List<StockDTO>> fetchAll() {
         List<Stock> stocks = stockService.findAll();
 
-        Type listType = new TypeToken<List<StockDTO>>() {
-        }.getType();
+        Type listType = new TypeToken<List<StockDTO>>() {}.getType();
         List<StockDTO> results = modelMapper.map(stocks, listType);
 
         return ResponseEntity.status(HttpStatus.OK).body(results);

@@ -49,11 +49,8 @@ public class OrderController {
             @PathVariable(name = "cartId")
                     Long cartId
     ) {
-        Optional<Order> order = orderService.createFromCart(cartId);
-        if (!order.isPresent()) {
-            return ResponseEntity.notFound().build();
-        }
-        return ResponseEntity.ok().body(modelMapper.map(order.get(), OrderDTO.class));
+        Order order = orderService.createFromCart(cartId);
+        return ResponseEntity.ok().body(modelMapper.map(order, OrderDTO.class));
     }
 
     @RequestMapping(value = "/api/order", method = RequestMethod.POST)
@@ -78,12 +75,8 @@ public class OrderController {
                 })
                 .collect(Collectors.toList());
 
-
-        Optional<Order> order = orderService.createFromItems(items);
-        if (!order.isPresent()) {
-            return ResponseEntity.notFound().build();
-        }
-        return ResponseEntity.ok().body(modelMapper.map(order.get(), OrderDTO.class));
+        Order order = orderService.createFromItems(items);
+        return ResponseEntity.ok().body(modelMapper.map(order, OrderDTO.class));
     }
 
 

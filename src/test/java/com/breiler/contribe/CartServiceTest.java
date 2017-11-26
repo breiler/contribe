@@ -11,12 +11,13 @@ import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.springframework.web.client.HttpServerErrorException;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.*;
 
@@ -52,56 +53,47 @@ public class CartServiceTest {
         assertEquals(0, argumentCaptor.getValue().getItems().size());
     }
 
-    @Test
-    public void fetchingCartThatDoesNotExistShouldReturnEmptyOptional() {
+    @Test(expected = HttpServerErrorException.class)
+    public void fetchingCartThatDoesNotExistShouldThrowError() {
         // Given
         when(cartRepository.findOne(anyLong())).thenReturn(null);
 
         // When
-        Optional<Cart> optionalCart = this.cartService.fetch(0L);
+        this.cartService.fetch(0L);
 
         // Then
-        assertFalse(optionalCart.isPresent());
     }
 
     @Test
     public void fetchingCartThatDoesExistShouldReturnOptional() {
         // Given
-        Cart cart = new Cart();
-        when(cartRepository.findOne(anyLong())).thenReturn(cart);
+        when(cartRepository.findOne(anyLong())).thenReturn(new Cart());
 
         // When
-        Optional<Cart> optionalCart = this.cartService.fetch(0L);
+        Cart cart = this.cartService.fetch(0L);
 
         // Then
-        assertTrue(optionalCart.isPresent());
+        assertNotNull(cart);
     }
 
-    @Test
-    public void addBookToCartWhereCartIsMissingShouldReturnEmptyOptional() {
+    @Test(expected = HttpServerErrorException.class)
+    public void addBookToCartWhereCartIsMissingShouldThrowError() {
         // Given
         when(cartRepository.findOne(anyLong())).thenReturn(null);
         when(bookRepository.findOne(anyLong())).thenReturn(new Book());
 
-
         // When
-        Optional<Cart> optionalCart = this.cartService.addBookToCart(0L, 0L, 0L);
-
-        // Then
-        assertFalse(optionalCart.isPresent());
+        this.cartService.addBookToCart(0L, 0L, 0L);
     }
 
-    @Test
-    public void addBookToCartWhereBookIsMissingShouldReturnEmptyOptional() {
+    @Test(expected = HttpServerErrorException.class)
+    public void addBookToCartWhereBookIsMissingShouldThrowError() {
         // Given
         when(cartRepository.findOne(anyLong())).thenReturn(new Cart());
         when(bookRepository.findOne(anyLong())).thenReturn(null);
 
         // When
-        Optional<Cart> optionalCart = this.cartService.addBookToCart(0L, 0L, 0L);
-
-        // Then
-        assertFalse(optionalCart.isPresent());
+        this.cartService.addBookToCart(0L, 0L, 0L);
     }
 
     @Test
@@ -123,10 +115,10 @@ public class CartServiceTest {
         when(cartRepository.save(argumentCaptor.capture())).thenReturn(cart);
 
         // When
-        Optional<Cart> optionalCart = this.cartService.addBookToCart(0L, 0L, 0L);
+        Cart updatedCart = this.cartService.addBookToCart(0L, 0L, 0L);
 
         // Then
-        assertTrue(optionalCart.isPresent());
+        assertNotNull(updatedCart);
         assertEquals(0, argumentCaptor.getValue().getItems().size());
     }
 
@@ -150,10 +142,10 @@ public class CartServiceTest {
         when(cartRepository.save(argumentCaptor.capture())).thenReturn(cart);
 
         // When
-        Optional<Cart> optionalCart = this.cartService.addBookToCart(0L, 0L, 1L);
+        Cart updatedCart = this.cartService.addBookToCart(0L, 0L, 1L);
 
         // Then
-        assertTrue(optionalCart.isPresent());
+        assertNotNull(updatedCart);
         assertEquals(1, argumentCaptor.getValue().getItems().size());
     }
 
@@ -176,12 +168,11 @@ public class CartServiceTest {
         when(cartRepository.save(argumentCaptor.capture())).thenReturn(cart);
 
         // When
-        Optional<Cart> optionalCart = this.cartService.addBookToCart(0L, 1L, 1L);
+        Cart updatedCart = this.cartService.addBookToCart(0L, 1L, 1L);
 
         // Then
-        assertTrue(optionalCart.isPresent());
+        assertNotNull(updatedCart);
         assertEquals(2, argumentCaptor.getValue().getItems().size());
         assertEquals(2, cart.getItems().size());
-
     }
 }

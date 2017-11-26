@@ -8,7 +8,9 @@ import com.breiler.contribe.repository.BookRepository;
 import com.breiler.contribe.repository.CartRepository;
 import com.google.common.collect.Lists;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.HttpServerErrorException;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -35,15 +37,20 @@ public class CartService {
         return cart;
     }
 
-    public Optional<Cart> fetch(final Long cartId) {
-        return Optional.ofNullable(cartRepository.findOne(cartId));
+    public Cart fetch(final Long cartId) {
+        Cart cart = cartRepository.findOne(cartId);
+        if (cart == null) {
+            throw new HttpServerErrorException(HttpStatus.NOT_FOUND, "Couldn't find cart with id " + cartId);
+        }
+
+        return cart;
     }
 
-    public Optional<Cart> addBookToCart(final Long cartId, final Long bookId, Long quantity) {
-        Cart cart = cartRepository.findOne(cartId);
+    public Cart addBookToCart(final Long cartId, final Long bookId, Long quantity) {
+        Cart cart = fetch(cartId);
         Book book = bookRepository.findOne(bookId);
-        if (cart == null || book == null) {
-            return Optional.empty();
+        if (book == null) {
+            throw new HttpServerErrorException(HttpStatus.NOT_FOUND, "Couldn't find book with id " + cartId);
         }
 
         if (quantity == 0) {
@@ -70,8 +77,7 @@ public class CartService {
             itemToBeUpdated.get().setQuantity(quantity);
         }
 
-        cartRepository.save(cart);
-        return Optional.of(cart);
+        return cartRepository.save(cart);
     }
 
     public void delete(Long id) {

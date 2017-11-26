@@ -14,7 +14,6 @@ import org.springframework.web.bind.annotation.*;
 
 import java.lang.reflect.Type;
 import java.util.List;
-import java.util.Optional;
 
 @Api(basePath = "/api", tags = "Carts", description = "Resources for handling carts", produces = "application/json")
 @RestController()
@@ -53,8 +52,7 @@ public class CartController {
     })
     public ResponseEntity<List<CartDTO>> fetchAll() {
         List<Cart> carts = cartService.fetchAll();
-        Type listType = new TypeToken<List<CartDTO>>() {
-        }.getType();
+        Type listType = new TypeToken<List<CartDTO>>() {}.getType();
         List<CartDTO> results = modelMapper.map(carts, listType);
         return ResponseEntity.status(HttpStatus.OK).body(results);
     }
@@ -73,16 +71,8 @@ public class CartController {
             @ApiParam(name = "item", value = "The item to be updated in the cart")
             @RequestBody
                     CreateItemDTO itemDTO) {
-
-        if (!cartService.fetch(id).isPresent()) {
-            return ResponseEntity.notFound().build();
-        }
-
-        Optional<Cart> cart = cartService.addBookToCart(id, itemDTO.getBookId(), itemDTO.getQuantity());
-        if (!cart.isPresent()) {
-            return ResponseEntity.notFound().build();
-        }
-        return ResponseEntity.ok().body(modelMapper.map(cart.get(), CartDTO.class));
+        Cart cart = cartService.addBookToCart(id, itemDTO.getBookId(), itemDTO.getQuantity());
+        return ResponseEntity.ok().body(modelMapper.map(cart, CartDTO.class));
     }
 
 
@@ -97,11 +87,8 @@ public class CartController {
             @ApiParam(name = "cartId", value = "The unique id of the cart")
             @PathVariable(name = "cartId")
                     Long id) {
-        Optional<Cart> cart = cartService.fetch(id);
-        if (!cart.isPresent()) {
-            return ResponseEntity.notFound().build();
-        }
-        return ResponseEntity.ok().body(modelMapper.map(cart.get(), CartDTO.class));
+        Cart cart = cartService.fetch(id);
+        return ResponseEntity.ok().body(modelMapper.map(cart, CartDTO.class));
     }
 
     @RequestMapping(value = "/api/carts/{cartId}", method = RequestMethod.DELETE)
