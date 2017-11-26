@@ -10,15 +10,15 @@ Så jag tar mig stora friheter och gör avsteg från kraven och utforskar möjli
 
 ## Teknikval
 
-Implementationen av applikationen har gjorts i Spring Boot då denna innehåller massor med funktioner, bra dokumentation, enkel att paketera och har en väl fungerande community.
+Implementationen av applikationen har gjorts i [Spring Boot](https://projects.spring.io/spring-boot/) då denna innehåller massor med funktioner, bra dokumentation, enkel att paketera och har en väl fungerande community.
 
-SQLite för DBMS då den kan köras inbäddat med applikationen och kräver ingen extra installtion/konfiguration
+[SQLite](https://www.sqlite.org/) för DBMS då den kan köras inbäddat med applikationen och kräver ingen extra installtion/konfiguration
 
-Använder Lombok för att få getters/setters, equals, hashCode, builders och konstruktorer. Detta snabbar upp utvecklingen och det blir mindre kod att underhålla. Kräver dock att man har ett tillägg för lombok i sin IDE.
+[Lombok](https://projectlombok.org/) för att få getters/setters, equals, hashCode, builders och konstruktorer. Detta snabbar upp utvecklingen och det blir mindre kod att underhålla. Kräver dock att man har ett tillägg för lombok i sin IDE.
 
-Apache Commons för att enkelt hantera filströmmar och strängar
+[Apache Commons](https://commons.apache.org/) för att enkelt hantera filströmmar och strängar
 
-Swagger istället för en exempelklient. Denna är bra för såväl konsumenter, utvecklare och testare som genom denna får tillgång till API:ets dokumentation och kan enkelt funktionerna direkt i webbläsaren. Jag ser i och med denna inte behovet av en fristående testklient.
+[Swagger](https://swagger.io/) istället för en exempelklient. Denna är bra för såväl konsumenter, utvecklare och testare som genom denna får tillgång till API:ets dokumentation och kan enkelt funktionerna direkt i webbläsaren. Jag ser i och med denna inte behovet av en fristående testklient.
 
 ## Köra
 
