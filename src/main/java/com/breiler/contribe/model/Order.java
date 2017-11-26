@@ -1,6 +1,9 @@
 package com.breiler.contribe.model;
 
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 import java.math.BigDecimal;
@@ -8,19 +11,15 @@ import java.util.List;
 
 @Data
 @Entity
+@Table(name = "ORD") // Order is a reserved word in SQL
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@ToString(exclude = "items")
-public class Cart {
-
+public class Order {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    /**
-     * We need an extra attribute because SQLLite doesn't allow us to store empty entities
-     */
     @Column
     private String name = "";
 

@@ -1,28 +1,32 @@
 package com.breiler.contribe.model;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import org.apache.commons.codec.binary.Base64;
-import org.apache.commons.lang3.StringUtils;
+import lombok.*;
 
+import javax.persistence.*;
 import java.math.BigDecimal;
 
 @Data
+@Entity
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
+@ToString(exclude = "stock")
 public class Book {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @Column
     private String title;
+
+    @Column
     private String author;
+
+    @Column
     private BigDecimal price;
 
-    public String getId() {
-        String id = StringUtils.defaultString(title);
-        id += StringUtils.defaultString(author);
-        id += StringUtils.defaultString(author);
-        id += price != null ? price.toPlainString() : "";
-        return Base64.encodeBase64String(id.getBytes());
-    }
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "STOCK_ID")
+    private Stock stock;
 }

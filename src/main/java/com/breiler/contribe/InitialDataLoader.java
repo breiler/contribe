@@ -1,9 +1,12 @@
-package com.breiler.contribe.repository;
+package com.breiler.contribe;
 
 import com.breiler.contribe.model.Book;
-import com.breiler.contribe.model.Inventory;
+import com.breiler.contribe.model.Stock;
+import com.breiler.contribe.service.BookService;
+import com.breiler.contribe.service.StockService;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
@@ -15,11 +18,20 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Component
-public class InventoryProvider {
+public class BookLoader {
 
-    private final DecimalFormat decimalFormat;
+    private DecimalFormat decimalFormat;
+    private BookService bookService;
+    private StockService stockService;
 
-    InventoryProvider() {
+    @Autowired
+    BookLoader(BookService bookService, StockService stockService) {
+        this.bookService = bookService;
+        this.stockService = stockService;
+        createDecimalFormat();
+    }
+
+    private void createDecimalFormat() {
         DecimalFormatSymbols symbols = new DecimalFormatSymbols();
         symbols.setGroupingSeparator(',');
         symbols.setDecimalSeparator('.');
@@ -28,9 +40,20 @@ public class InventoryProvider {
         decimalFormat.setParseBigDecimal(true);
     }
 
-    public List<Inventory> fetchInventory() {
+    public void loadInitialData() {
+        List<Book> books = bookService.findBooks(null);
+        if( books.isEmpty() ) {
+            List<Stock> stockList = getStockFromFile();
+            stockList.forEach(stock -> {
+                Book book = bookService.create(stock.getBook());
+                stockService.setStock(book.getId(), stock.getQuantity());
+            });
+        }
+    }
+
+    private List<Stock> getStockFromFile() {
         try {
-            List<String> list = IOUtils.readLines(InventoryProvider.class.getResourceAsStream("/bookstoredata.txt"));
+            List<String> list = IOUtils.readLines(BookLoader.class.getResourceAsStream("/bookstoredata.txt"));
             return list.stream()
                     .map(this::convertLineToInventory)
                     .collect(Collectors.toList());
@@ -39,7 +62,7 @@ public class InventoryProvider {
         }
     }
 
-    private Inventory convertLineToInventory(String line) {
+    private Stock convertLineToInventory(String line) {
         String[] splittedLine = StringUtils.split(line, ";");
         if (splittedLine.length < 4) {
             throw new RuntimeException("Couldn't parse line '" + line + "', expected 3 columns but found " + splittedLine.length);
@@ -54,7 +77,7 @@ public class InventoryProvider {
                     .price(price)
                     .build();
 
-            return Inventory.builder()
+            return Stock.builder()
                     .book(book)
                     .quantity(Long.valueOf(splittedLine[3]))
                     .build();
