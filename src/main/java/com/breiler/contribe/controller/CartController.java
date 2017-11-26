@@ -1,18 +1,22 @@
 package com.breiler.contribe.controller;
 
 import com.breiler.contribe.contract.CartDTO;
-import com.breiler.contribe.contract.CreateCartDTO;
+import com.breiler.contribe.contract.CreateItemDTO;
 import com.breiler.contribe.model.Cart;
 import com.breiler.contribe.service.CartService;
 import io.swagger.annotations.*;
 import lombok.extern.log4j.Log4j;
 import org.modelmapper.ModelMapper;
+import org.modelmapper.TypeToken;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.lang.reflect.Type;
+import java.util.List;
 import java.util.Optional;
 
-@Api(basePath = "/api", value = "Cart", description = "For handling carts", produces = "application/json")
+@Api(basePath = "/api", tags = "Carts", description = "Resources for handling carts", produces = "application/json")
 @RestController()
 @CrossOrigin(origins = "*", methods = {RequestMethod.GET, RequestMethod.POST})
 @Log4j
@@ -28,64 +32,91 @@ public class CartController {
 
     @RequestMapping(value = "/api/carts", method = RequestMethod.POST)
     @ApiOperation(value = "Creates a new cart",
-            notes = "Creates a cart")
+            notes = "Creates a new empty cart")
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "The cart was created successfully"),
             @ApiResponse(code = 500, message = "Something went wrong when processing the request")
     })
-    public ResponseEntity<CartDTO> createCart(
-            @ApiParam(name = "Cart", value = "The cart to be created")
-            @RequestBody
-                    CreateCartDTO cartDTO) {
-
-        Cart cart = modelMapper.map(cartDTO, Cart.class);
-        Cart createdCart = cartService.createCart(cart);
+    public ResponseEntity<CartDTO> create() {
+        Cart createdCart = cartService.create();
         return ResponseEntity.ok().body(modelMapper.map(createdCart, CartDTO.class));
     }
 
+    @RequestMapping(value = "/api/carts", method = RequestMethod.GET)
+    @ApiOperation(value = "Retrieves all carts",
+            notes = "Retrieves all carts and its content.",
+            response = CartDTO.class,
+            responseContainer = "List")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "The carts was retrieved successfully"),
+            @ApiResponse(code = 500, message = "Something went wrong when processing the request")
+    })
+    public ResponseEntity<List<CartDTO>> fetchAll() {
+        List<Cart> carts = cartService.fetchAll();
+        Type listType = new TypeToken<List<CartDTO>>() {
+        }.getType();
+        List<CartDTO> results = modelMapper.map(carts, listType);
+        return ResponseEntity.status(HttpStatus.OK).body(results);
+    }
 
-    @RequestMapping(value = "/api/carts/{id}", method = RequestMethod.PUT)
-    @ApiOperation(value = "Updates a cart",
-            notes = "Updates a cart")
+    @RequestMapping(value = "/api/carts/{cartId}/items", method = RequestMethod.POST)
+    @ApiOperation(value = "Adds or updates a cart with an item",
+            notes = "Adds or updates a cart with an item and the quantity.")
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "The cart was updated successfully"),
             @ApiResponse(code = 500, message = "Something went wrong when processing the request")
     })
-    public ResponseEntity<CartDTO> updateCart(
-            @ApiParam(name = "id", value = "The unique id of the cart")
-            @PathVariable(name = "id")
-                    String id,
-            @ApiParam(name = "Cart", value = "The cart to be updated")
+    public ResponseEntity<CartDTO> update(
+            @ApiParam(name = "cartId", value = "The unique bookId of the cart", example = "1")
+            @PathVariable(name = "cartId")
+                    Long id,
+            @ApiParam(name = "item", value = "The item to be updated in the cart")
             @RequestBody
-                    CreateCartDTO cartDTO) {
+                    CreateItemDTO itemDTO) {
 
-        Cart cart = modelMapper.map(cartDTO, Cart.class);
-        cart.setId(id);
-
-        if( !cartService.getCart(id).isPresent() ) {
+        if (!cartService.fetch(id).isPresent()) {
             return ResponseEntity.notFound().build();
         }
 
-        Cart updatedCart = cartService.updateCart(cart);
-        return ResponseEntity.ok().body(modelMapper.map(updatedCart, CartDTO.class));
+        Optional<Cart> cart = cartService.addBookToCart(id, itemDTO.getBookId(), itemDTO.getQuantity());
+        if (!cart.isPresent()) {
+            return ResponseEntity.notFound().build();
+        }
+        return ResponseEntity.ok().body(modelMapper.map(cart.get(), CartDTO.class));
     }
 
 
-    @RequestMapping(value = "/api/carts/{id}", method = RequestMethod.GET)
+    @RequestMapping(value = "/api/carts/{cartId}", method = RequestMethod.GET)
     @ApiOperation(value = "Retrieves a cart",
-            notes = "Retrieves a cart given its unique id")
+            notes = "Retrieves a cart and its content given its unique id.")
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "The cart was retrieved successfully"),
             @ApiResponse(code = 500, message = "Something went wrong when processing the request")
     })
-    public ResponseEntity<CartDTO> getCart(
-            @ApiParam(name = "id", value = "The unique id of the cart")
-            @PathVariable(name = "id")
-                    String id) {
-        Optional<Cart> cart = cartService.getCart(id);
-        if( !cartService.getCart(id).isPresent() ) {
+    public ResponseEntity<CartDTO> fetch(
+            @ApiParam(name = "cartId", value = "The unique id of the cart")
+            @PathVariable(name = "cartId")
+                    Long id) {
+        Optional<Cart> cart = cartService.fetch(id);
+        if (!cart.isPresent()) {
             return ResponseEntity.notFound().build();
         }
-        return ResponseEntity.ok().body(modelMapper.map(cart, CartDTO.class));
+        return ResponseEntity.ok().body(modelMapper.map(cart.get(), CartDTO.class));
+    }
+
+    @RequestMapping(value = "/api/carts/{cartId}", method = RequestMethod.DELETE)
+    @ApiOperation(value = "Deletes a cart",
+            notes = "Deletes a cart given its unique cartId",
+            response = Void.class)
+    @ApiResponses(value = {
+            @ApiResponse(code = 204, message = "The cart was deleted successfully", response = Void.class),
+            @ApiResponse(code = 500, message = "Something went wrong when processing the request")
+    })
+    public ResponseEntity delete(
+            @ApiParam(name = "cartId", value = "The unique id of the cart")
+            @PathVariable(name = "cartId")
+                    Long id) {
+        cartService.delete(id);
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 }

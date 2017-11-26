@@ -12,10 +12,7 @@ import java.math.BigDecimal;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class BookDTO {
-
-    @ApiModelProperty(notes = "The unique id of the book", example = "1", required = true, readOnly = true)
-    private Long id;
+public class CreateBookDTO {
 
     @ApiModelProperty(notes = "The title of the book", example = "Do Androids Dream Of Electric Sheep?", required = true)
     private String title;
