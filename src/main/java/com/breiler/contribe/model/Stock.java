@@ -17,7 +17,7 @@ public class Stock {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private String id;
 
-    @OneToOne(mappedBy="stock")
+    @OneToOne(mappedBy = "stock")
     private Book book;
 
     @Column
