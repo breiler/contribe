@@ -4,7 +4,7 @@
 ## Introduktion
 Uppgiften lämnar egentligen för många frågor för att kunna börja implementera.
 
-Jag antar att interfacet, som beskrivs i uppgiften, är kontraktet som webb-utvecklarna ska integrera mot. Den innehåller varken kundkorgs- eller orderhantering vilket i sig tyder på att kontraktet behöver uppdateras innan frontend-teamet börjar med sin implementation. Sedan känns statushanteringen med arrayer lite omodernt och borde istället kunna hanteras med Exceptions eller särskilda REST-resurser. I verkligheten hade det behövts en workshop med frontend-teamet för att ta reda på deras behov. 
+Jag antar att interfacet, som beskrivs i uppgiften, är kontraktet som webb-utvecklarna ska integrera mot. Den innehåller varken kundkorgs- eller orderhantering vilket i sig tyder på att kontraktet behöver uppdateras innan frontend-teamet börjar med sin implementation. Sedan känns statushanteringen med arrayer lite omodernt och borde istället kunna hanteras med Exceptions eller särskilda REST-resurser. I verkligheten hade det behövts en workshop med frontend-teamet för att ta reda på deras behov innan utveckling påbörjades. 
 
 Så jag tar mig stora friheter och gör avsteg från kraven och utforskar möjligheterna med ett REST-baserat API istället för RPC.
 
@@ -18,22 +18,37 @@ Implementationen av applikationen har gjorts i [Spring Boot](https://projects.sp
 
 [Apache Commons](https://commons.apache.org/) för att enkelt hantera filströmmar och strängar
 
-[Swagger](https://swagger.io/) istället för en exempelklient. Denna är bra för såväl konsumenter, utvecklare och testare som genom denna får tillgång till API:ets dokumentation och kan enkelt funktionerna direkt i webbläsaren. Jag ser i och med denna inte behovet av en fristående testklient.
+[Swagger](https://swagger.io/) istället för en exempelklient. Denna är smidig för såväl konsumenter av API:et, utvecklare och testare som genom denna får tillgång till API:ets dokumentation samt kan testa funktionerna direkt i webbläsaren.
 
 [Modelmapper](http://modelmapper.org/) för att smidigt mappa kontrakts-entiteter till interna modellentiteter.
+
+## Design 
+
+Jag har valt att dela upp systemet i tre lager:
+
+* Första lagret består av Controllers som utgör REST-gränsnittet tillsammans med kontrakt-klasserna. Detta lager ansvarar även för att konvertera kontraktsobjektet till interna modellobjekt. Detta lager skulle även ansvara för syntaktisk validering av det inskickade datat (saknas för närvarande).
+
+* Andra lagret består av ett anntal interna Services som utgör domänlogiken.
+
+* Tredje lagret består av persistenslagret i form av Repositories som persisterar modellobjekt.
 
 ## Köra
 
 Kör applikationen genom följande:
- * Kompilera applikationen: ```mvn clean package```
- * Kör JAR-filen:  ```java -jar target/contribe-1.0-SNAPSHOT-exec.jar```
+
+* Kompilera applikationen: 
+```mvn clean package```
+
+* Kör JAR-filen:  
+```java -jar target/contribe-1.0-SNAPSHOT-exec.jar```
 
 ## Funktioner
 
 Alla funktioner är åtkomliga via Swagger:  http://localhost:8080/swagger-ui.html
 
 ### Söka på böcker
-Söka på böcker görs genom REST-resursen: ```GET /api/books?query={söksträng}```
+Söka på böcker görs genom REST-resursen: 
+```GET /api/books?query={söksträng}```
 
 Sökningen görs genom ett enkelt SQL-filter som söker i på poster där fälten för författare eller bokens titel innehåller söksträngen. Sökfiltret bryr sig inte om gemener eller versaler.
 
@@ -41,7 +56,8 @@ Sökningen görs genom ett enkelt SQL-filter som söker i på poster där fälte
 
 
 ### Skapa kundvagn
-En användare kan skapa en kundvagn genom REST-resursen: ```POST /api/carts```
+En användare kan skapa en kundvagn genom REST-resursen: 
+```POST /api/carts```
 
 Kundvagnen skapas upp och returneras tillsammans med ett unikt id. Id:t till kundvagnen kan sedan användas för att lägga till böcker och för att göra själva beställningen.
 
@@ -49,7 +65,8 @@ Kundvagnen skapas upp och returneras tillsammans med ett unikt id. Id:t till kun
 
 
 ### Lägga till böcker till kundvagn
-En användare kan lägga till böcker till sin kundvagn genom REST-resursen: ```POST /api/carts/{cartId}```
+En användare kan lägga till böcker till sin kundvagn genom REST-resursen: 
+```POST /api/carts/{cartId}```
 
 Boken och hur många man vill ha specificeras genom följande JSON:
 ```json
@@ -63,7 +80,8 @@ Boken och hur många man vill ha specificeras genom följande JSON:
 
 
 ### Se innehållet i sin kundvagn
-En användare kan hämta hela sin kundvagn genom REST-resursen: ```GET /api/carts/{cartId}```
+En användare kan hämta hela sin kundvagn genom REST-resursen: 
+```GET /api/carts/{cartId}```
 
 Denna returnerar information om boken och antal. Den räknar även ihop antalet artiklar och summan för hela kundvagnen.
 
@@ -71,7 +89,8 @@ Denna returnerar information om boken och antal. Den räknar även ihop antalet 
 
 
 ### Lägga en order
-En användare kan lägga en order av sin kundvagn genom REST-resursen ```POST /api/carts/{cartId}/order```
+En användare kan lägga en order av sin kundvagn genom REST-resursen 
+```POST /api/carts/{cartId}/order```
 
 Denna kontrollerar först att det finns tillräckligt med böcker på lagret för att kunna genomföra ordern (annars slängs ett fel). 
 Därefter räknas antalet ner på alla artiklar på lagret.
@@ -80,7 +99,8 @@ Därefter räknas antalet ner på alla artiklar på lagret.
 
 
 ### Lägga till böcker till sortimentet
-En användare kan lägga till böcker till sortimentet genom REST-resursen ```POST /api/books```
+En användare kan lägga till böcker till sortimentet genom REST-resursen 
+```POST /api/books```
 
 Information om boken ska innehålla författare, titel och ett pris:
 ```json
@@ -95,7 +115,8 @@ Information om boken ska innehålla författare, titel och ett pris:
 
 
 ### Ändra böckers lagerstatus
-En användare kan ändra lagerstatus för en bok genom REST-resursen ```PUT /api/stock/{bookId}```
+En användare kan ändra lagerstatus för en bok genom REST-resursen 
+```PUT /api/stock/{bookId}```
 
 Funktionen sätter lagerstatusen till det antal man skickar in enligt följande exemepel:
 ```json
