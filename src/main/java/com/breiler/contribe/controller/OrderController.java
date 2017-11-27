@@ -88,10 +88,10 @@ public class OrderController {
             @ApiResponse(code = 200, message = "All orders in the system"),
             @ApiResponse(code = 500, message = "Something went wrong when processing the request")
     })
-    public ResponseEntity<OrderDTO> fetchAll() {
+    public ResponseEntity<List<OrderDTO>> fetchAll() {
         List<Order> order = orderService.fetchAll();
         Type listType = new TypeToken<List<OrderDTO>>() {}.getType();
-        OrderDTO result = modelMapper.map(order, listType);
+        List<OrderDTO> result = modelMapper.map(order, listType);
         return ResponseEntity.ok().body(result);
     }
 }
