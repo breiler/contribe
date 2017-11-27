@@ -1,5 +1,6 @@
 package com.breiler.contribe;
 
+import com.breiler.contribe.exceptions.NotFoundException;
 import com.breiler.contribe.model.Book;
 import com.breiler.contribe.model.Cart;
 import com.breiler.contribe.model.Item;
@@ -53,7 +54,7 @@ public class CartServiceTest {
         assertEquals(0, argumentCaptor.getValue().getItems().size());
     }
 
-    @Test(expected = HttpServerErrorException.class)
+    @Test(expected = NotFoundException.class)
     public void fetchingCartThatDoesNotExistShouldThrowError() {
         // Given
         when(cartRepository.findOne(anyLong())).thenReturn(null);
@@ -76,7 +77,7 @@ public class CartServiceTest {
         assertNotNull(cart);
     }
 
-    @Test(expected = HttpServerErrorException.class)
+    @Test(expected = NotFoundException.class)
     public void addBookToCartWhereCartIsMissingShouldThrowError() {
         // Given
         when(cartRepository.findOne(anyLong())).thenReturn(null);
@@ -86,7 +87,7 @@ public class CartServiceTest {
         this.cartService.addBookToCart(0L, 0L, 0L);
     }
 
-    @Test(expected = HttpServerErrorException.class)
+    @Test(expected = NotFoundException.class)
     public void addBookToCartWhereBookIsMissingShouldThrowError() {
         // Given
         when(cartRepository.findOne(anyLong())).thenReturn(new Cart());

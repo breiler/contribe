@@ -1,5 +1,6 @@
 package com.breiler.contribe;
 
+import com.breiler.contribe.exceptions.NotFoundException;
 import com.breiler.contribe.model.*;
 import com.breiler.contribe.repository.CartRepository;
 import com.breiler.contribe.repository.OrderRepository;
@@ -10,7 +11,6 @@ import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.springframework.web.client.HttpServerErrorException;
 
 import java.util.Collections;
 
@@ -37,7 +37,7 @@ public class OrderServiceTest {
         this.orderService = new OrderService(this.cartRepository, this.orderRepository, this.stockRepository);
     }
 
-    @Test(expected = HttpServerErrorException.class)
+    @Test(expected = NotFoundException.class)
     public void createFromCartWhereCartDoesNotExist() {
 
         //Given

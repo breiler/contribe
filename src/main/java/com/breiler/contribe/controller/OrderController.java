@@ -1,6 +1,7 @@
 package com.breiler.contribe.controller;
 
 import com.breiler.contribe.contract.CreateOrderDTO;
+import com.breiler.contribe.contract.ItemDTO;
 import com.breiler.contribe.contract.OrderDTO;
 import com.breiler.contribe.model.Book;
 import com.breiler.contribe.model.Item;
@@ -42,6 +43,7 @@ public class OrderController {
             notes = "Creates an order from an existing cart given its unique id. To be able to create the cart the number of items needs to exist in the stock. The number of items added in the order will be removed from the inventory stock. After a sucessful order the cart can be removed.")
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "The order was created successfully"),
+            @ApiResponse(code = 412, message = "The order couldn't be completed because there were not enough items in stock. It will return the items not in stock.", response = ItemDTO.class),
             @ApiResponse(code = 500, message = "Something went wrong when processing the request")
     })
     public ResponseEntity<OrderDTO> createOrderFromCart(
@@ -58,10 +60,11 @@ public class OrderController {
             notes = "Creates an order from an existing cart given its unique id. To be able to create the cart the number of items needs to exist in the stock. The number of items added in the order will be removed from the inventory stock. After a sucessful order the cart can be removed.")
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "The order was created successfully"),
+            @ApiResponse(code = 412, message = "The order couldn't be completed because there were not enough items in stock. It will return the items not in stock.", response = ItemDTO.class),
             @ApiResponse(code = 500, message = "Something went wrong when processing the request")
     })
     public ResponseEntity<OrderDTO> createOrder(
-            @ApiParam(value = "The item to be updated in the cart")
+            @ApiParam(value = "The order with items to create")
             @RequestBody
                     CreateOrderDTO orderDTO
     ) {

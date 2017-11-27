@@ -1,6 +1,7 @@
 package com.breiler.contribe.service;
 
 
+import com.breiler.contribe.exceptions.NotFoundException;
 import com.breiler.contribe.model.Book;
 import com.breiler.contribe.model.Cart;
 import com.breiler.contribe.model.Item;
@@ -40,7 +41,7 @@ public class CartService {
     public Cart fetch(final Long cartId) {
         Cart cart = cartRepository.findOne(cartId);
         if (cart == null) {
-            throw new HttpServerErrorException(HttpStatus.NOT_FOUND, "Couldn't find cart with id " + cartId);
+            throw new NotFoundException("Couldn't find cart with id " + cartId);
         }
 
         return cart;
@@ -50,7 +51,7 @@ public class CartService {
         Cart cart = fetch(cartId);
         Book book = bookRepository.findOne(bookId);
         if (book == null) {
-            throw new HttpServerErrorException(HttpStatus.NOT_FOUND, "Couldn't find book with id " + cartId);
+            throw new NotFoundException("Couldn't find book with id " + cartId);
         }
 
         if (quantity == 0) {

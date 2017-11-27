@@ -1,6 +1,8 @@
 package com.breiler.contribe.service;
 
 
+import com.breiler.contribe.exceptions.ItemsNotInStockException;
+import com.breiler.contribe.exceptions.NotFoundException;
 import com.breiler.contribe.model.Cart;
 import com.breiler.contribe.model.Item;
 import com.breiler.contribe.model.Order;
@@ -10,13 +12,10 @@ import com.breiler.contribe.repository.OrderRepository;
 import com.breiler.contribe.repository.StockRepository;
 import com.google.common.collect.Lists;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.HttpServerErrorException;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
@@ -38,13 +37,13 @@ public class OrderService {
     public Order createFromCart(Long cartId) {
         Cart cart = this.cartRepository.findOne(cartId);
         if (cart == null) {
-            throw new HttpServerErrorException(HttpStatus.PRECONDITION_FAILED, "Couldn't find cart with id " + cartId);
+            throw new NotFoundException("Couldn't find cart with id " + cartId);
         }
 
         // Make sure there are enough elements in stock
         List<Item> itemsWithNotEnoughStock = getItemsWithNotEnoughStock(cart.getItems());
         if (!itemsWithNotEnoughStock.isEmpty()) {
-            throw new HttpServerErrorException(HttpStatus.PRECONDITION_FAILED, "There are not enough items in stock for " + itemsWithNotEnoughStock);
+            throw new ItemsNotInStockException(itemsWithNotEnoughStock);
         }
 
         List<Item> items = new ArrayList<>();
@@ -87,7 +86,7 @@ public class OrderService {
         // Make sure there are enough elements in stock
         List<Item> itemsWithNotEnoughStock = getItemsWithNotEnoughStock(items);
         if (!itemsWithNotEnoughStock.isEmpty()) {
-            throw new HttpServerErrorException(HttpStatus.PRECONDITION_FAILED, "There are not enough items in stock for " + itemsWithNotEnoughStock);
+            throw new ItemsNotInStockException(itemsWithNotEnoughStock);
         }
 
         // Update the book stock status
