@@ -2,9 +2,11 @@
 # Arbetsprov för Contribe
 
 ## Introduktion
-Uppgiften lämnar egentligen för många frågor för att kunna börja implementera.
+Uppgiften innehåller för lite information för att jag skulle vågat börja implementera i verkligheten.
 
-Jag antar att interfacet, som beskrivs i uppgiften, är kontraktet som webb-utvecklarna ska integrera mot. Den innehåller varken kundkorgs- eller orderhantering vilket i sig tyder på att kontraktet behöver uppdateras innan frontend-teamet börjar med sin implementation. Sedan känns statushanteringen med arrayer lite omodernt och borde istället kunna hanteras med Exceptions eller särskilda REST-resurser. I verkligheten hade det behövts en workshop med frontend-teamet för att ta reda på deras behov innan utveckling påbörjades. 
+Jag antar att interfacet, som beskrivs i uppgiften, är kontraktet som webb-utvecklarna ska integrera mot. Den innehåller varken kundkorgs- eller orderhantering vilket i sig tyder på att kontraktet behöver uppdateras innan frontend-teamet börjar med sin implementation. 
+
+Sedan känns statushanteringen med status i arrayer lite omodern och jag tror att det skulle kunna bli smidigare med exempelvis Exceptions som returnerar information som kan visas direkt i webbklienten, exempelvis en lista på böcker i beställningen som inte finns på lager. I verkligheten hade det behövts en workshop med frontend-teamet för att ta reda på deras behov innan utveckling påbörjades. 
 
 Så jag tar mig stora friheter och gör avsteg från kraven och utforskar möjligheterna med ett REST-baserat API istället för RPC.
 
@@ -26,7 +28,7 @@ Implementationen av applikationen har gjorts i [Spring Boot](https://projects.sp
 
 Jag har valt att dela upp systemet i tre lager:
 
-* Första lagret består av Controllers som utgör REST-gränsnittet tillsammans med kontrakt-klasserna. Detta lager ansvarar även för att konvertera kontraktsobjektet till interna modellobjekt. Detta lager skulle även ansvara för syntaktisk validering av det inskickade datat (saknas för närvarande).
+* Första lagret består av Controllers    som utgör REST-gränsnittet tillsammans med kontrakt-klasserna. Detta lager ansvarar även för att konvertera kontraktsobjektet till interna modellobjekt. Detta lager skulle även ansvara för syntaktisk validering av det inskickade datat (saknas för närvarande).
 
 * Andra lagret består av ett anntal interna Services som utgör domänlogiken.
 
